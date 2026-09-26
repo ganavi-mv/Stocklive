@@ -98,6 +98,19 @@ export default function CustomerHomePage() {
     setDetailedProduct(null);
   };
 
+  // Google Maps Redirection
+  const handleOpenGoogleMaps = (prod) => {
+    let mapsUrl = '';
+    if (prod.store_latitude && prod.store_longitude) {
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${prod.store_latitude},${prod.store_longitude}`;
+    } else if (prod.store_address) {
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(prod.store_address)}`;
+    } else {
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(prod.store_name)}`;
+    }
+    window.open(mapsUrl, '_blank');
+  };
+
   // Auth Form Handlers
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -486,7 +499,7 @@ export default function CustomerHomePage() {
       )}
 
       {/* ---------------------------------------------------- */}
-      {/* FULL PRODUCT DETAILS MODAL (AFTER AUTHENTICATION) */}
+      {/* FULL PRODUCT DETAILS MODAL (WITH GOOGLE MAPS REDIRECTION) */}
       {/* ---------------------------------------------------- */}
       {detailedProduct && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -498,19 +511,24 @@ export default function CustomerHomePage() {
               ✕
             </button>
 
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full">
-                {detailedProduct.category}
-              </span>
-              <span className="px-2.5 py-1 bg-slate-800 text-emerald-400 text-xs font-semibold rounded-full border border-slate-700">
-                {detailedProduct.availability}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full">
+                  {detailedProduct.category}
+                </span>
+                <span className="px-2.5 py-1 bg-slate-800 text-emerald-400 text-xs font-semibold rounded-full border border-slate-700">
+                  {detailedProduct.availability}
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                ⏱️ Verified recently
               </span>
             </div>
 
             <h2 className="text-2xl font-extrabold text-white mb-2">{detailedProduct.name}</h2>
 
             <p className="text-sm text-slate-300 mb-6 leading-relaxed">
-              {detailedProduct.description}
+              {detailedProduct.description || 'No description provided.'}
             </p>
 
             <div className="bg-slate-800/60 border border-slate-800 rounded-2xl p-5 mb-6 space-y-3">
@@ -522,18 +540,33 @@ export default function CustomerHomePage() {
                 <span className="text-xs text-slate-400 font-medium">Available Store</span>
                 <span className="text-sm font-bold text-emerald-400">🏪 {detailedProduct.store_name}</span>
               </div>
+              {detailedProduct.store_address && (
+                <div className="flex justify-between items-center pb-3 border-b border-slate-700/60">
+                  <span className="text-xs text-slate-400 font-medium">Address</span>
+                  <span className="text-xs text-slate-300 max-w-[220px] text-right line-clamp-2">{detailedProduct.store_address}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-400 font-medium">Stock Status</span>
                 <span className="text-xs font-bold text-white">{detailedProduct.availability}</span>
               </div>
             </div>
 
-            <button
-              onClick={() => setDetailedProduct(null)}
-              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition border border-slate-700"
-            >
-              Close Product View
-            </button>
+            {/* Navigation Button */}
+            <div className="space-y-3">
+              <button
+                onClick={() => handleOpenGoogleMaps(detailedProduct)}
+                className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+              >
+                <span>🗺️ Navigate to Store on Google Maps</span>
+              </button>
+              <button
+                onClick={() => setDetailedProduct(null)}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded-xl transition border border-slate-700"
+              >
+                Close View
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -85,29 +85,32 @@ export default function RetailerDashboardPage() {
             </Link>
           </div>
 
-          {/* Card 2: Inventory (Coming soon) */}
-          <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between opacity-75">
+          {/* Card 2: Inventory (Functional Phase 2) */}
+          <div className="bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-6 transition flex flex-col justify-between shadow-lg">
             <div>
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4 text-2xl">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 text-2xl">
                 📦
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Inventory</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Store Inventory</h3>
               <p className="text-sm text-slate-400 mb-6">
-                Publish live stock levels, CSV uploads, and POS sync.
+                Add items, update prices, and switch stock availability (`In Stock` / `Out of Stock`) in real time.
               </p>
             </div>
-            <div className="px-4 py-2.5 bg-slate-800 text-amber-400 text-center font-medium text-xs rounded-xl border border-slate-700">
-              Coming in next phase
-            </div>
+            <Link
+              to="/business/inventory"
+              className="inline-flex items-center justify-center w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition"
+            >
+              Manage Inventory →
+            </Link>
           </div>
 
-          {/* Card 3: Consumer Search (Coming soon) */}
+          {/* Card 3: Consumer Search (Coming in Phase III) */}
           <div className="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between opacity-75">
             <div>
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-4 text-2xl">
                 🔍
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Consumer Search</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Consumer Search Analytics</h3>
               <p className="text-sm text-slate-400 mb-6">
                 View consumer search trends and local availability queries near your store.
               </p>

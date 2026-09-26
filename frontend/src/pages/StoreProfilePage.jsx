@@ -16,6 +16,7 @@ export default function StoreProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   const navigate = useNavigate();
@@ -42,7 +43,6 @@ export default function StoreProfilePage() {
       }
     } catch (err) {
       if (err.response?.status === 404) {
-        // No store profile yet
         setHasStore(false);
         setIsEditing(true);
       } else {
@@ -55,6 +55,31 @@ export default function StoreProfilePage() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAutoDetectLocation = () => {
+    if (!navigator.geolocation) {
+      setMessage({ type: 'error', text: 'Geolocation is not supported by your browser.' });
+      return;
+    }
+    setDetectingLocation(true);
+    setMessage({ type: 'info', text: 'Detecting GPS coordinates...' });
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setFormData((prev) => ({
+          ...prev,
+          latitude: position.coords.latitude.toFixed(6),
+          longitude: position.coords.longitude.toFixed(6),
+        }));
+        setMessage({ type: 'success', text: 'GPS coordinates detected successfully!' });
+        setDetectingLocation(false);
+      },
+      (error) => {
+        setMessage({ type: 'error', text: 'Unable to retrieve location. Please check browser permissions.' });
+        setDetectingLocation(false);
+      }
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -70,11 +95,9 @@ export default function StoreProfilePage() {
 
     try {
       if (hasStore) {
-        // Update existing store
         await api.put('/stores/my-store', payload);
         setMessage({ type: 'success', text: 'Store profile updated successfully!' });
       } else {
-        // Create new store
         await api.post('/stores', payload);
         setMessage({ type: 'success', text: 'Store profile created successfully!' });
         setHasStore(true);
@@ -103,11 +126,11 @@ export default function StoreProfilePage() {
       {/* Header */}
       <header className="px-8 py-5 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <Link to="/dashboard" className="text-slate-400 hover:text-white transition">
+          <Link to="/business/dashboard" className="text-slate-400 hover:text-white transition text-sm">
             ← Back to Dashboard
           </Link>
         </div>
-        <span className="text-xl font-bold text-white">Store Profile</span>
+        <span className="text-xl font-bold text-white">Store Profile & Geolocation</span>
       </header>
 
       {/* Content */}
@@ -120,8 +143,8 @@ export default function StoreProfilePage() {
               </h2>
               <p className="text-sm text-slate-400 mt-1">
                 {hasStore
-                  ? 'Your store is registered on StockLive'
-                  : 'Enter your retail store details to get started'}
+                  ? 'Your store is registered on StockLive with location coordinates'
+                  : 'Enter your retail store details & location to get started'}
               </p>
             </div>
             {hasStore && !isEditing && (
@@ -139,6 +162,8 @@ export default function StoreProfilePage() {
               className={`mb-6 p-4 rounded-xl text-sm ${
                 message.type === 'success'
                   ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                  : message.type === 'info'
+                  ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400'
                   : 'bg-red-500/10 border border-red-500/20 text-red-400'
               }`}
             >
@@ -180,10 +205,10 @@ export default function StoreProfilePage() {
 
                 <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-800">
                   <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold block mb-1">
-                    Geolocation Coordinates
+                    Geolocation Tag (Lat, Long)
                   </span>
                   <p className="text-sm font-semibold text-emerald-400">
-                    Lat: {formData.latitude || 'N/A'}, Long: {formData.longitude || 'N/A'}
+                    📍 {formData.latitude || '13.0827'}, {formData.longitude || '80.2707'}
                   </p>
                 </div>
               </div>
@@ -243,31 +268,45 @@ export default function StoreProfilePage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Latitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    name="latitude"
-                    value={formData.latitude}
-                    onChange={handleChange}
-                    placeholder="13.0827"
-                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition"
-                  />
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-slate-300">Store Geolocation Coordinates</label>
+                  <button
+                    type="button"
+                    onClick={handleAutoDetectLocation}
+                    disabled={detectingLocation}
+                    className="text-xs text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-lg transition"
+                  >
+                    {detectingLocation ? 'Detecting...' : '📍 Auto-Detect My Location'}
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Longitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    name="longitude"
-                    value={formData.longitude}
-                    onChange={handleChange}
-                    placeholder="80.2707"
-                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Latitude</label>
+                    <input
+                      type="number"
+                      step="any"
+                      name="latitude"
+                      value={formData.latitude}
+                      onChange={handleChange}
+                      placeholder="13.0827"
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Longitude</label>
+                    <input
+                      type="number"
+                      step="any"
+                      name="longitude"
+                      value={formData.longitude}
+                      onChange={handleChange}
+                      placeholder="80.2707"
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition"
+                    />
+                  </div>
                 </div>
               </div>
 

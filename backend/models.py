@@ -27,21 +27,45 @@ class Store(Base):
     phone = Column(String, nullable=False)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    map_location_url = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationship to User
+    # Relationships
     owner = relationship("User", back_populates="store")
+    products = relationship("Product", back_populates="store", cascade="all, delete-orphan")
 
 class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
+    store_id = Column(Integer, ForeignKey("stores.id"), nullable=True)
     name = Column(String, index=True, nullable=False)
     category = Column(String, index=True, nullable=False)
     price = Column(Float, nullable=False)
     availability = Column(String, default="In Stock")
+    stock_quantity = Column(Integer, default=10, nullable=False)
     image_url = Column(String, nullable=True)
     store_name = Column(String, default="Local Store")
     description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationship to Store
+    store = relationship("Store", back_populates="products")
+
+class Wishlist(Base):
+    __tablename__ = "wishlists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class StockAlert(Base):
+    __tablename__ = "stock_alerts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)

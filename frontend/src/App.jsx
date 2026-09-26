@@ -10,6 +10,7 @@ import RetailerRegisterPage from './pages/RetailerRegisterPage';
 import RetailerLoginPage from './pages/RetailerLoginPage';
 import RetailerDashboardPage from './pages/RetailerDashboardPage';
 import StoreProfilePage from './pages/StoreProfilePage';
+import RetailerInventoryPage from './pages/RetailerInventoryPage';
 
 function App() {
   return (
@@ -30,12 +31,14 @@ function App() {
         <Route path="/business/login" element={<RetailerLoginPage />} />
         <Route path="/business/dashboard" element={<RetailerDashboardPage />} />
         <Route path="/business/store-profile" element={<StoreProfilePage />} />
+        <Route path="/business/inventory" element={<RetailerInventoryPage />} />
 
         {/* Shortcuts for existing retailer URLs (Backwards compatibility) */}
         <Route path="/register" element={<RetailerRegisterPage />} />
         <Route path="/login" element={<RetailerLoginPage />} />
         <Route path="/dashboard" element={<RetailerDashboardPage />} />
         <Route path="/store-profile" element={<StoreProfilePage />} />
+        <Route path="/inventory" element={<RetailerInventoryPage />} />
       </Routes>
     </Router>
   );
